@@ -1,0 +1,6 @@
+{
+  "appId": "com.tuempresa.ticketapp",
+  "appName": "TicketApp",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}

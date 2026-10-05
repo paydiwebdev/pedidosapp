@@ -1,0 +1,63 @@
+package __APP_ID__;
+
+import android.content.Context;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintManager;
+import android.webkit.WebView;
+
+import com.getcapacitor.Plugin;
+import com.getcapacitor.PluginCall;
+import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
+
+/**
+ * Imprime el contenido actual del WebView con el sistema de impresión de Android.
+ * Usa las reglas @media print del CSS (solo se ve la pantalla de etiquetas).
+ *
+ * Uso desde JS:
+ *   const EtiquetaPrinter = Capacitor.registerPlugin("EtiquetaPrinter");
+ *   await EtiquetaPrinter.print();                          // 100 x 50 mm
+ *   await EtiquetaPrinter.print({ widthMm: 100, heightMm: 50, jobName: "Etiquetas" });
+ */
+@CapacitorPlugin(name = "EtiquetaPrinter")
+public class EtiquetaPrinterPlugin extends Plugin {
+
+    @PluginMethod
+    public void print(final PluginCall call) {
+        final int widthMm = call.getInt("widthMm", 100);
+        final int heightMm = call.getInt("heightMm", 50);
+        final String jobName = call.getString("jobName", "Etiquetas");
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    WebView webView = getBridge().getWebView();
+                    PrintManager printManager =
+                        (PrintManager) getActivity().getSystemService(Context.PRINT_SERVICE);
+
+                    PrintDocumentAdapter adapter = webView.createPrintDocumentAdapter(jobName);
+
+                    // Tamaño de papel en milésimas de pulgada (1 mm = 1000 / 25.4 mils)
+                    int widthMils = Math.round(widthMm * 1000f / 25.4f);
+                    int heightMils = Math.round(heightMm * 1000f / 25.4f);
+
+                    PrintAttributes attributes = new PrintAttributes.Builder()
+                        .setMediaSize(new PrintAttributes.MediaSize(
+                            "ETIQUETA_" + widthMm + "x" + heightMm,
+                            "Etiqueta " + widthMm + "x" + heightMm + " mm",
+                            widthMils,
+                            heightMils))
+                        .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
+                        .build();
+
+                    printManager.print(jobName, adapter, attributes);
+                    call.resolve();
+                } catch (Exception e) {
+                    call.reject("No se pudo iniciar la impresión: " + e.getMessage());
+                }
+            }
+        });
+    }
+}

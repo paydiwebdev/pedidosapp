@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<!-- viewport-fit=cover + 16px inputs = comfortable on phones, no zoom on focus (iOS) -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hoja de pedido</title>
+<link rel="stylesheet" href="formulario-styles.css">
+</head>
+<body>
+<main>
+  <h1>Hoja de pedido</h1>
+  <p class="sub">Rellena los datos del trabajo. Los campos con * son obligatorios.</p>
+
+  <form id="f" novalidate>
+
+    <!-- Fecha: se rellena sola con el día de hoy y no se puede editar -->
+    <div class="field">
+      <label class="title" for="fecha">Fecha</label>
+      <input id="fecha" name="fecha" type="text" readonly>
+    </div>
+
+    <div class="field">
+      <label class="title" for="cliente">Cliente *</label>
+      <input id="cliente" name="cliente" type="text" autocomplete="organization" required>
+      <p class="err" data-for="cliente"></p>
+    </div>
+
+    <!-- capture is omitted on purpose: phones offer both camera and gallery -->
+    <div class="field">
+      <label class="title" for="publicidad">Publicidad (imagen)</label>
+      <div class="file"><input id="publicidad" name="publicidad" type="file" accept="image/*"></div>
+      <img id="preview" alt="Vista previa de la publicidad">
+    </div>
+
+    <!-- Tipo: casillas NO exclusivas -->
+    <fieldset id="tipo">
+      <legend>Tipo *</legend>
+      <div class="opts stack">
+        <label class="opt"><input type="checkbox" name="tipo" value="Colocar varilla">Colocar varilla</label>
+        <label class="opt"><input type="checkbox" name="tipo" value="Colocar faldilla" id="tipoFaldilla">Colocar faldilla</label>
+        <label class="opt"><input type="checkbox" name="tipo" value="Colocar wire-o">Colocar wire-o</label>
+      </div>
+      <p class="err" data-for="tipo"></p>
+    </fieldset>
+
+    <!-- Tamaño: lista de números + "Otro" (los números de la lista se editan en el array SIZES del script) -->
+    <fieldset id="size">
+      <legend>Tamaño *</legend>
+      <div class="opts" id="sizeList"></div>
+      <div class="other">
+        <label class="opt"><input type="radio" name="size" value="otro" id="sizeOtro">Otro</label>
+        <input type="number" id="sizeOtroVal" inputmode="decimal" min="1" step="any" placeholder="Nº" aria-label="Otro tamaño" disabled>
+      </div>
+      <p class="err" data-for="size"></p>
+    </fieldset>
+
+    <!-- Faldilla: solo se activa si marcas "Colocar faldilla" -->
+    <fieldset id="faldilla" disabled>
+      <legend>Faldilla</legend>
+      <p class="hint" id="faldillaHint">Marca “Colocar faldilla” arriba para elegir.</p>
+      <div class="opts stack">
+        <label class="opt"><input type="radio" name="faldilla" value="Bimensual">Bimensual</label>
+        <label class="opt"><input type="radio" name="faldilla" value="Mensual">Mensual</label>
+        <label class="opt"><input type="radio" name="faldilla" value="Mensual notas">Mensual notas</label>
+        <label class="opt"><input type="radio" name="faldilla" value="Lechera">Lechera</label>
+      </div>
+      <p class="err" data-for="faldilla"></p>
+    </fieldset>
+
+    <fieldset id="idioma">
+      <legend>Idioma *</legend>
+      <div class="opts stack">
+        <label class="opt"><input type="radio" name="idioma" value="Gallego">Gallego</label>
+        <label class="opt"><input type="radio" name="idioma" value="Castellano">Castellano</label>
+      </div>
+      <p class="err" data-for="idioma"></p>
+    </fieldset>
+
+    <div class="field">
+      <label class="title" for="cantidad">Cantidad *</label>
+      <input id="cantidad" name="cantidad" type="number" inputmode="numeric" min="1" step="1">
+      <p class="err" data-for="cantidad"></p>
+    </div>
+
+    <!-- Exclusivas (radio): real / aproximada -->
+    <fieldset id="exactitud">
+      <legend>Cantidad real o aproximada *</legend>
+      <div class="opts stack">
+        <label class="opt"><input type="radio" name="exactitud" value="Real">Real</label>
+        <label class="opt"><input type="radio" name="exactitud" value="Aproximada">Aproximada</label>
+      </div>
+      <p class="err" data-for="exactitud"></p>
+    </fieldset>
+
+    <!-- Exclusivas (radio): hacer todos / hacer justos -->
+    <fieldset id="modo">
+      <legend>Producción *</legend>
+      <div class="opts stack">
+        <label class="opt"><input type="radio" name="modo" value="Hacer todos">Hacer todos</label>
+        <label class="opt"><input type="radio" name="modo" value="Hacer justos">Hacer justos</label>
+      </div>
+      <p class="err" data-for="modo"></p>
+    </fieldset>
+
+    <div class="field">
+      <label class="title" for="entrega">Fecha de entrega *</label>
+      <input id="entrega" name="entrega" type="date">
+      <p class="err" data-for="entrega"></p>
+    </div>
+
+    <div class="actions">
+      <button type="submit">Ver resumen</button>
+      <button type="reset" class="secondary">Borrar todo</button>
+    </div>
+  </form>
+
+  <div id="summary" role="status"></div>
+  <div class="actions" id="out" style="display:none">
+    <button type="button" id="share">Compartir (WhatsApp, correo…)</button>
+    <button type="button" id="copy" class="secondary">Copiar resumen</button>
+    <button type="button" id="print" class="secondary">Imprimir / PDF</button>
+  </div>
+  <div id="toast" aria-live="polite"></div>
+</main>
+<script src="formulario-script.js"></script>
+</body>
+</html>

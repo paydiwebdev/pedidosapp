@@ -1,0 +1,51 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Install custom print plugin
+        run: |
+          APP_ID=$(node -p "require('./capacitor.config.json').appId")
+          JAVA_DIR="android/app/src/main/java/$(echo "$APP_ID" | tr . /)"
+          mkdir -p "$JAVA_DIR"
+          sed "s/__APP_ID__/$APP_ID/g" native/MainActivity.java.template > "$JAVA_DIR/MainActivity.java"
+          sed "s/__APP_ID__/$APP_ID/g" native/EtiquetaPrinterPlugin.java.template > "$JAVA_DIR/EtiquetaPrinterPlugin.java"
+
+      - name: Sync web assets into Android project
+        run: npx cap sync android
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk

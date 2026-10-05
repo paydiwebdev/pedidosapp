@@ -1,6 +1,6 @@
 {
-  "appId": "com.tuempresa.ticketapp",
-  "appName": "TicketApp",
+  "appId": "com.tuempresa.pedidos",
+  "appName": "PedidosApp",
   "webDir": "www",
   "bundledWebRuntime": false
 }

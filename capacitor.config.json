@@ -2,5 +2,11 @@
   "appId": "com.tuempresa.pedidos",
   "appName": "PedidosApp",
   "webDir": "www",
-  "bundledWebRuntime": false
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true
+  }
 }

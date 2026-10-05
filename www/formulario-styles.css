@@ -78,4 +78,22 @@
   #summary { display: none; white-space: pre-wrap; background: var(--card); border: 1px dashed var(--accent);
     border-radius: var(--radius); padding: 14px; margin-top: 16px; }
   #toast { min-height: 1.4em; color: var(--accent); font-weight: 600; margin-top: 8px; }
-  @media print { .actions, #toast { display: none; } body { background: #fff; } }
+  /* Cabecera con botón de servidor (solo se muestra dentro de la app) */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  #cfg { min-height: 40px; padding: 4px 12px; font-size: .875rem; white-space: nowrap; }
+  #btnCam { width: 100%; margin-top: 8px; }
+
+  /* ---------- Etiqueta (solo visible al imprimir) ---------- */
+  #etiqueta { display: none; }
+  @media print {
+    @page { margin: 0; }
+    html, body { background: #fff !important; color: #000 !important; margin: 0; padding: 0 !important; }
+    main, #toast { display: none !important; }
+    #etiqueta { display: flex; gap: 3mm; align-items: center; width: 100%; min-height: 50mm;
+                padding: 3mm; overflow: hidden; color: #000; font-family: Arial, Helvetica, sans-serif; }
+    #etiqueta .et-text { flex: 1; min-width: 0; }
+    #etiqueta h2 { margin: 0 0 1.5mm; font-size: 15pt; line-height: 1.1; overflow-wrap: anywhere; }
+    #etiqueta p { margin: 0 0 1mm; font-size: 8.5pt; line-height: 1.2; }
+    #etiqueta img { width: 30mm; height: 40mm; object-fit: contain; }
+    #etiqueta img:not([src]) { display: none; }
+  }

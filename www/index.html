@@ -2,18 +2,15 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<!-- viewport-fit=cover + 16px inputs = comfortable on phones, no zoom on focus (iOS) -->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hoja de pedido</title>
 <link rel="stylesheet" href="formulario-styles.css">
 </head>
 <body>
 <main>
-  <header class="top">
-    <h1>Hoja de pedido</h1>
-    <!-- Solo visible dentro de la app: cambia la URL del servidor Laravel -->
-    <button type="button" id="cfg" class="secondary" hidden>⚙ Servidor</button>
-  </header>
-  <p class="sub">Rellena los datos del trabajo. Solo el cliente es obligatorio.</p>
+  <h1>Hoja de pedido</h1>
+  <p class="sub">Rellena los datos del trabajo. Los campos con * son obligatorios.</p>
 
   <form id="f" novalidate>
 
@@ -29,17 +26,16 @@
       <p class="err" data-for="cliente"></p>
     </div>
 
-    <!-- Galería (input normal) + cámara (capture): en la app el selector de archivos no ofrece cámara por sí solo -->
+    <!-- capture is omitted on purpose: phones offer both camera and gallery -->
     <div class="field">
       <label class="title" for="publicidad">Publicidad (imagen)</label>
-      <div class="file"><input id="publicidad" name="publicidad" type="file" accept="image/*"></div>
-      <button type="button" id="btnCam" class="secondary">📷 Hacer foto</button>
-      <input id="publicidadCam" type="file" accept="image/*" capture="environment" hidden>
+      <div class="file"><input id="publicidad" name="publicidad" type="file" capture="environment" accept="image/*"></div>
       <img id="preview" alt="Vista previa de la publicidad">
     </div>
 
+    <!-- Tipo: casillas NO exclusivas -->
     <fieldset id="tipo">
-      <legend>Tipo</legend>
+      <legend>Tipo *</legend>
       <div class="opts stack">
         <label class="opt"><input type="checkbox" name="tipo" value="Colocar varilla">Colocar varilla</label>
         <label class="opt"><input type="checkbox" name="tipo" value="Colocar faldilla" id="tipoFaldilla">Colocar faldilla</label>
@@ -48,8 +44,9 @@
       <p class="err" data-for="tipo"></p>
     </fieldset>
 
+    <!-- Tamaño: lista de números + "Otro" (los números de la lista se editan en el array SIZES del script) -->
     <fieldset id="size">
-      <legend>Tamaño</legend>
+      <legend>Tamaño *</legend>
       <div class="opts" id="sizeList"></div>
       <div class="other">
         <label class="opt"><input type="radio" name="size" value="otro" id="sizeOtro">Otro</label>
@@ -58,6 +55,7 @@
       <p class="err" data-for="size"></p>
     </fieldset>
 
+    <!-- Faldilla: solo se activa si marcas "Colocar faldilla" -->
     <fieldset id="faldilla" disabled>
       <legend>Faldilla</legend>
       <p class="hint" id="faldillaHint">Marca “Colocar faldilla” arriba para elegir.</p>
@@ -71,7 +69,7 @@
     </fieldset>
 
     <fieldset id="idioma">
-      <legend>Idioma</legend>
+      <legend>Idioma *</legend>
       <div class="opts stack">
         <label class="opt"><input type="radio" name="idioma" value="Gallego">Gallego</label>
         <label class="opt"><input type="radio" name="idioma" value="Castellano">Castellano</label>
@@ -80,13 +78,14 @@
     </fieldset>
 
     <div class="field">
-      <label class="title" for="cantidad">Cantidad</label>
+      <label class="title" for="cantidad">Cantidad *</label>
       <input id="cantidad" name="cantidad" type="number" inputmode="numeric" min="1" step="1">
       <p class="err" data-for="cantidad"></p>
     </div>
 
+    <!-- Exclusivas (radio): real / aproximada -->
     <fieldset id="exactitud">
-      <legend>Cantidad real o aproximada</legend>
+      <legend>Cantidad real o aproximada *</legend>
       <div class="opts stack">
         <label class="opt"><input type="radio" name="exactitud" value="Real">Real</label>
         <label class="opt"><input type="radio" name="exactitud" value="Aproximada">Aproximada</label>
@@ -94,8 +93,9 @@
       <p class="err" data-for="exactitud"></p>
     </fieldset>
 
+    <!-- Exclusivas (radio): hacer todos / hacer justos -->
     <fieldset id="modo">
-      <legend>Producción</legend>
+      <legend>Producción *</legend>
       <div class="opts stack">
         <label class="opt"><input type="radio" name="modo" value="Hacer todos">Hacer todos</label>
         <label class="opt"><input type="radio" name="modo" value="Hacer justos">Hacer justos</label>
@@ -104,7 +104,7 @@
     </fieldset>
 
     <div class="field">
-      <label class="title" for="entrega">Fecha de entrega</label>
+      <label class="title" for="entrega">Fecha de entrega *</label>
       <input id="entrega" name="entrega" type="date">
       <p class="err" data-for="entrega"></p>
     </div>
@@ -117,25 +117,12 @@
 
   <div id="summary" role="status"></div>
   <div class="actions" id="out" style="display:none">
-    <button type="button" id="share">Enviar pedido al servidor</button>
-    <button type="button" id="print" class="secondary">Imprimir etiqueta</button>
+    <button type="button" id="share">Enviar</button>
     <button type="button" id="copy" class="secondary">Copiar resumen</button>
+    <button type="button" id="print" class="secondary">Imprimir / PDF</button>
   </div>
   <div id="toast" aria-live="polite"></div>
 </main>
-
-<!-- Etiqueta: oculta en pantalla, es lo único que se imprime (ver @media print en el CSS) -->
-<section id="etiqueta" aria-hidden="true">
-  <div class="et-text">
-    <h2 id="etCliente"></h2>
-    <p id="etL1"></p>
-    <p id="etL2"></p>
-    <p id="etL3"></p>
-    <p id="etL4"></p>
-  </div>
-  <img id="etImg" alt="">
-</section>
-
 <script src="formulario-script.js"></script>
 </body>
 </html>

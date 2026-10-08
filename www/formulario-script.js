@@ -1,7 +1,18 @@
-(() => {
+
   const $ = (s, r = document) => r.querySelector(s);
   const form = $('#f');
-
+  // definición global del toast
+  const showToast = (message) => { 
+    const toastEl = document.querySelector('#toast'); 
+    if (!toastEl) { 
+      console.error('No existe el elemento #toast'); 
+      return; 
+    } 
+    toastEl.textContent = message; 
+    setTimeout(() => { 
+      toastEl.textContent = ''; 
+    }, 2500); 
+  };
   // ---- Ajustes fáciles de editar ----
   const SIZES = [21, 22.5, 31.5, 32, 33, 33.5, 43.5, 48.5, 10.5,16,22];   // tamaños de la lista
   // -----------------------------------
@@ -161,57 +172,55 @@ form.addEventListener('submit', e => {
 
 
 
-  const toast = t => { $('#toast').textContent = t; setTimeout(() => $('#toast').textContent = '', 2500); };
+
 
   $('#copy').onclick = async () => {
-    try { await navigator.clipboard.writeText(summaryText); toast('Resumen copiado'); }
-    catch { toast('No se pudo copiar'); }
+    try { await navigator.clipboard.writeText(summaryText); showToast('Resumen copiado'); }
+    catch { showToast('No se pudo copiar'); }
   };
   // Compartir: en móvil abre el menú nativo; incluye la imagen si el navegador lo permite
   $('#share').onclick = async () => {
     const files = $('#publicidad').files[0] ? [$('#publicidad').files[0]] : [];
     const data = { title: 'Pedido', text: summaryText };
     enviarPedido();
-    // try {
-    //   if (files.length && navigator.canShare?.({ files })) data.files = files;
-    //   if (navigator.share) await navigator.share(data);
-    //   else { await navigator.clipboard.writeText(summaryText); toast('Copiado (compartir no disponible)'); }
-    // } catch (err) { if (err.name !== 'AbortError') toast('No se pudo compartir'); }
+    
   };
   $('#print').onclick = () => window.print();
-})();
-const API_URL = '/api/pedidos';   // si el HTML está en otro dominio: 'https://tu-dominio.com/api/pedidos'
 
-async function enviarPedido() {
-  const fd = new FormData();
-  fd.append('cliente', document.querySelector('#cliente').value.trim());
 
-  const img = document.querySelector('#publicidad').files[0];
-  if (img) fd.append('publicidad_path', img);
-
-  // Checkboxes -> tipo[]
-  document.querySelectorAll('[name=tipo]:checked').forEach(c => fd.append('tipo[]', c.value));
-
-  // Tamaño: valor de la lista o el número de "Otro"
-  const s = document.querySelector('[name=size]:checked');
-  if (s) fd.append('size', s.value === 'otro' ? document.querySelector('#sizeOtroVal').value : s.value);
-
-  // Radios y campos simples: solo se envían si tienen valor
-  for (const n of ['faldilla', 'idioma', 'exactitud', 'modo']) {
-    const r = document.querySelector(`[name=${n}]:checked`);
-    if (r) fd.append(n, r.value);
+  const API_URL = '/api/pedidos';   // si el HTML está en otro dominio: 'https://tu-dominio.com/api/pedidos'
+  async function enviarPedido() {
+    const fd = new FormData();
+    fd.append('cliente', document.querySelector('#cliente').value.trim());
+  
+    const img = document.querySelector('#publicidad').files[0];
+    if (img) fd.append('publicidad_path', img);
+  
+    // Checkboxes -> tipo[]
+    document.querySelectorAll('[name=tipo]:checked').forEach(c => fd.append('tipo[]', c.value));
+  
+    // Tamaño: valor de la lista o el número de "Otro"
+    const s = document.querySelector('[name=size]:checked');
+    if (s) fd.append('size', s.value === 'otro' ? document.querySelector('#sizeOtroVal').value : s.value);
+  
+    // Radios y campos simples: solo se envían si tienen valor
+    for (const n of ['faldilla', 'idioma', 'exactitud', 'modo']) {
+      const r = document.querySelector(`[name=${n}]:checked`);
+      if (r) fd.append(n, r.value);
+    }
+    for (const id of ['cantidad', 'entrega']) {
+      const v = document.querySelector('#' + id).value;
+      if (v) fd.append(id, v);
+    }
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { Accept: 'application/json' }, // sin Content-Type: el navegador pone el boundary
+      body: fd,
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(Object.values(json.errors || {}).flat().join('\n') || json.message);
+    showToast("pedido de "+json.cliente+" guardado");
+    return json; // pedido guardado (incluye id y publicidad_url)
   }
-  for (const id of ['cantidad', 'entrega']) {
-    const v = document.querySelector('#' + id).value;
-    if (v) fd.append(id, v);
-  }
 
-  const res = await fetch(API_URL, {
-    method: 'POST',
-    headers: { Accept: 'application/json' }, // sin Content-Type: el navegador pone el boundary
-    body: fd,
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(Object.values(json.errors || {}).flat().join('\n') || json.message);
-  return json; // pedido guardado (incluye id y publicidad_url)
-}
+

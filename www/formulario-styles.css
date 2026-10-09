@@ -43,6 +43,7 @@
   input:focus-visible, .opt:focus-within, button:focus-visible {
     outline: 3px solid var(--accent); outline-offset: 2px;
   }
+  
 
   /* Options: big tap targets (checkbox / radio hidden inside a pill) */
   .opts { display: flex; flex-wrap: wrap; gap: 8px; }

@@ -76,7 +76,7 @@
   }
   button.secondary { background: transparent; color: var(--ink); border-color: var(--line); }
 
-  #summary { display: none; white-space: pre-wrap; background: var(--card); border: 1px dashed var(--accent);
+  #summary { display: none; white-space: pre-wrap;overflow-wrap:break-word; background: var(--card); border: 1px dashed var(--accent);
     border-radius: var(--radius); padding: 14px; margin-top: 16px; }
   #toast { min-height: 1.4em; color: var(--accent); font-weight: 600; margin-top: 8px; }
   @media print { .actions, #toast { display: none; } body { background: #fff; } }

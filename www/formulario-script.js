@@ -196,6 +196,12 @@ orderForm.addEventListener('keydown', event => {
   scrollToNextSection(event.target);
 });
 
+// En el móvil, la tecla "Siguiente" del teclado NO envía un Enter: el navegador mueve el cursor por su
+// cuenta al siguiente campo de texto y se salta las opciones (de cliente iba directo a cantidad).
+// Con enterkeyhint="done" la tecla pasa a ser "Hecho" y sí envía Enter, que lo gestiona el código de arriba.
+orderForm.querySelectorAll('input:not([type=checkbox]):not([type=radio]):not([type=file])')
+  .forEach(field => field.setAttribute('enterkeyhint', 'done'));
+
 // ───────── 3 · IMÁGENES DE PUBLICIDAD ─────────
 // Se pueden añadir varias, desde la galería o con la cámara (la cámara añade de una en una)
 

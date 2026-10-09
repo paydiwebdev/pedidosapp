@@ -18,6 +18,12 @@ const orderForm = getElement('#f');
 
 // Ajustes fáciles de editar
 const SIZE_OPTIONS = [21, 22.5, 31.5, 32, 33, 33.5, 43.5, 48.5, 10.5, 16, 22];  // tamaños de la lista
+// Qué elementos cuentan como "un dato" al avanzar con Enter / al elegir una opción.
+// Se usa el contenedor MÁS CERCANO al campo que coincida con alguno de estos selectores:
+// si un grupo de opciones (.opts) está dentro de un .field, avanza al .opts; si no hay .opts, al .field.
+// Si prefieres que todo sea ".field", pon aquí solo '.field'.
+const STEP_SELECTOR = '.opts, .field, fieldset';
+const STEP_SCROLL_MARGIN = '88px';    // hueco por encima, para que se vea el título del dato
 const MAX_IMAGES = 10;                       // debe coincidir con 'publicidad' => max:10 en Laravel
 const PEDIDOS_PATH = '/api/pedidos';
 const REQUEST_TIMEOUT_MS = 30000;            // si el servidor no responde en 30 s, se cancela el envío
@@ -127,8 +133,8 @@ syncFaldilla();
 // Lista los "datos" del formulario en orden, sin depender de las clases del HTML.
 // Se parte de los propios <input>: los radios/casillas con el mismo name forman UN dato
 // (p. ej. todas las opciones de "tamaño" o de "tipo"), y cada campo suelto es otro dato.
-// Para desplazar la pantalla se usa el contenedor del dato: fieldset o .field si existe,
-// si no el grupo de opciones (.opts) y, en último caso, el propio campo.
+// Para desplazar la pantalla se usa el contenedor más cercano según STEP_SELECTOR
+// y, si no hay ninguno, el propio campo.
 function getFormSections() {
   const sectionsByKey = new Map();
 
@@ -141,7 +147,7 @@ function getFormSections() {
 
     if (!sectionsByKey.has(key)) {
       sectionsByKey.set(key, {
-        element: input.closest('fieldset, .field') ?? input.closest('.opts') ?? input,
+        element: input.closest(STEP_SELECTOR) ?? input,
         inputs: [],
       });
     }
@@ -164,7 +170,10 @@ function scrollToNextSection(currentInput) {
     section.inputs.some(input => !input.matches(':disabled'))        // :disabled tiene en cuenta fieldset desactivados
   );
 
-  if (nextSection) nextSection.element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (nextSection) {
+    nextSection.element.style.scrollMarginTop = STEP_SCROLL_MARGIN;
+    nextSection.element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 // Al elegir una opción exclusiva (radio) se pasa al siguiente dato.
